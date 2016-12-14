@@ -12,6 +12,13 @@ messaging.smsDeliver(pdu, function(error, sms){
 
 });
 
+/*
+Optional parameters:
+validity: Date,
+csca: String, eg. "+33736786385"
+klass: number (in range 0-3)
+*/
+
 
 messaging.smsSubmit({
         "number": "+33636786385",
