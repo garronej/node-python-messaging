@@ -1,10 +1,16 @@
 {
         "name": "node-python-messaging",
-        "version": "1.0.0",
+        "version": "0.1.0",
+        "repository": {
+                "type": "git",
+                "url": "git://github.com/garronej/node-python-messaging.git"
+        },
         "keywords": [
                 "python-messaging",
                 "sms",
-                "pdu"
+                "pdu",
+                "multipart",
+                "concatenated"
         ],
         "description": "A port of the python-messaging library for node",
         "main": "index.js",
