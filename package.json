@@ -1,0 +1,21 @@
+{
+        "name": "node-python-messaging",
+        "version": "1.0.0",
+        "keywords": [
+                "python-messaging",
+                "sms",
+                "pdu"
+        ],
+        "description": "A port of the python-messaging library for node",
+        "main": "index.js",
+        "dependencies": {
+                "python-shell": "^0.4.0",
+                "sequence": "^3.0.0"
+        },
+        "devDependencies": {},
+        "scripts": {
+                "install": "./install-python-dep.sh"
+        },
+        "author": "Joseph Garrone",
+        "license": "MIT"
+}
