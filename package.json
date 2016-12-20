@@ -1,6 +1,8 @@
 {
         "name": "node-python-messaging",
         "version": "0.1.0",
+        "main": "index.js",
+        "types": "./index.d.ts",
         "repository": {
                 "type": "git",
                 "url": "git://github.com/garronej/node-python-messaging.git"
@@ -13,7 +15,6 @@
                 "concatenated"
         ],
         "description": "A port of the python-messaging library for node",
-        "main": "index.js",
         "dependencies": {
                 "python-shell": "^0.4.0",
                 "sequence": "^3.0.0"
