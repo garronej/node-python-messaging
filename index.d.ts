@@ -6,6 +6,7 @@ declare module "node-python-messaging" {
         validity?: Date;
         csca?: string;
         klass?: number;
+        requestStatus?: boolean;
     }
 
     export interface Pdu {
@@ -29,14 +30,6 @@ declare module "node-python-messaging" {
         ref: number;
         dcs: number;
     }
-
-    /*
-    interface SmsDeliverProto {
-        (pdu: string, callback: (error: Error, sms: Sms) => void):void;
-    }
-
-    export let smsDeliver: SmsDeliverProto;
-    */
 
     export function smsDeliver(pdu: string, callback: (error: Error, sms: Sms)=>void):void;
     export function smsSubmit(params: InputsSmsSubmit, callback: (error: Error, pdus: Pdu[])=>void): void;

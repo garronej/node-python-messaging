@@ -20,13 +20,16 @@ def smsSubmit(args):
     sms= SmsSubmit(args["number"], args["text"])
 
     if "csca" in args:
-        sms._set_csca(args["csca"])
+        sms.csca= args["csca"]
 
     if "validity" in args:
-        sms._set_validity(datetime.strptime(args["validity"], "%a, %d %b %Y %H:%M:%S %Z"))
+        sms.validity= datetime.strptime(args["validity"], "%a, %d %b %Y %H:%M:%S %Z")
 
     if "klass" in args:
-        sms._set_klass(args["klass"])
+        sms.klass= args["klass"]
+
+    if "requestStatus" in args:
+        sms.requestStatus= args["requestStatus"]
 
     out= []
 

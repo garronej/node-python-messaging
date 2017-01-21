@@ -19,12 +19,13 @@ Optional parameters:
 validity: Date,
 csca: String, eg. "+33736786385"
 klass: number (in range 0-3)
+requestStatus: boolean (default false)
 */
 
 
 messaging.smsSubmit({
         "number": "+33636786385",
-        "text": "Mon message oklm é là",
+        "text": "Mon message é là",
         "validity": new Date()
 }, function(error, pdus){
 
