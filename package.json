@@ -1,6 +1,6 @@
 {
         "name": "node-python-messaging",
-        "version": "0.2.0",
+        "version": "0.2.2",
         "main": "index.js",
         "types": "./index.d.ts",
         "repository": {
@@ -21,7 +21,8 @@
         },
         "devDependencies": {},
         "scripts": {
-                "install": "./install-python-dep.sh"
+                "install": "./install-python-dep.sh",
+                "test": "node example/test"
         },
         "author": "Joseph Garrone",
         "license": "MIT"

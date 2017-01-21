@@ -6,7 +6,7 @@ declare module "node-python-messaging" {
         validity?: Date;
         csca?: string;
         klass?: number;
-        requestStatus?: boolean;
+        request_status?: boolean;
     }
 
     export interface Pdu {

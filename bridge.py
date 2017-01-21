@@ -27,9 +27,9 @@ def smsSubmit(args):
 
     if "klass" in args:
         sms.klass= args["klass"]
-
-    if "requestStatus" in args:
-        sms.requestStatus= args["requestStatus"]
+        
+    if "request_status" in args:
+        sms.request_status= args["request_status"]
 
     out= []
 
