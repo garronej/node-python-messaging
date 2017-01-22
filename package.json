@@ -1,6 +1,6 @@
 {
         "name": "node-python-messaging",
-        "version": "0.2.2",
+        "version": "1.0.0",
         "main": "index.js",
         "types": "./index.d.ts",
         "repository": {

@@ -1,14 +1,20 @@
 import sys
 import json
 
-
 def smsDeliver(args):
 
     from messaging.sms import SmsDeliver
 
     sms= SmsDeliver(args["pdu"]).data.copy()
 
-    sms["date"]= str(sms["date"]) 
+    if sms["date"] != None:
+        sms["date"]= str(sms["date"])
+
+    if sms["type"] == 0b10:
+        if sms["sr"]["dt"] != None:
+            sms["sr"]["dt"]= str(sms["sr"]["dt"])
+        if sms["sr"]["scts"] != None:
+            sms["sr"]["scts"]= str(sms["sr"]["scts"])
 
     return sms
 
@@ -39,8 +45,6 @@ def smsSubmit(args):
     return out
 
     
-    
-
 method= sys.argv[1]
 args= json.loads(sys.argv[2])
 out= {}
@@ -54,4 +58,3 @@ else:
 
 
 print json.dumps(out)
-

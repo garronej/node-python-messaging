@@ -1,4 +1,4 @@
-var PythonShell = require('python-shell');
+var PythonShell = require("python-shell");
 
 var bridge= (function(){
 
@@ -30,7 +30,12 @@ function smsDeliver(pdu, callback){
 
                 if( error ) return callback(error);
 
-                out.date= new Date(out.date);
+                if( out.date ) out.date= new Date(out.date);
+
+                if( out.type === 0b10 ){
+                        if( out.sr.dt ) out.sr.dt= new Date(out.sr.dt);
+                        if( out.sr.scts ) out.sr.scts= new Date(out.sr.scts);
+                }
 
                 callback(null, out);
 
@@ -53,7 +58,9 @@ function smsSubmit( args, callback){
 
 module.exports= { 
         "smsDeliver": smsDeliver,
-        "smsSubmit": smsSubmit
+        "decodePdu": smsDeliver,
+        "smsSubmit": smsSubmit,
+        "buildSmsSubmitPdus": smsSubmit
 };
 
 
