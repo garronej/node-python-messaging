@@ -1,8 +1,5 @@
 #!/bin/bash
-mkdir -p virtual 
-
-virtualenv virtual
-
-. ./virtual/bin/activate
-
+mkdir -p ./out/virtual 
+virtualenv ./out/virtual
+. ./out/virtual/bin/activate
 pip install -r requirements.txt

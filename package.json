@@ -1,8 +1,25 @@
 {
         "name": "node-python-messaging",
-        "version": "1.0.0",
-        "main": "index.js",
-        "types": "./index.d.ts",
+        "version": "1.1.0",
+        "main": "./out/lib/index.js",
+        "types": "./out/lib/index.d.ts",
+        "description": "A port of the python-messaging library for node",
+        "dependencies": {
+                "@types/node": "^4.0.0",
+                "typescript": "^2.1.4",
+                "python-shell": "^0.4.0"
+        },
+        "devDependencies": {},
+        "scripts": {
+                "postinstall": "npm run build",
+                "build": "npm run tsc && npm run pip",
+                "tsc": "./node_modules/.bin/tsc -p ./tsconfig.json",
+                "pip": "./install-python-dep.sh",
+                "test": "node ./out/test/main",
+                "test-js": "node ./src/test/main.js"
+        },
+        "author": "Joseph Garrone",
+        "license": "MIT",
         "repository": {
                 "type": "git",
                 "url": "git://github.com/garronej/node-python-messaging.git"
@@ -13,17 +30,5 @@
                 "pdu",
                 "multipart",
                 "concatenated"
-        ],
-        "description": "A port of the python-messaging library for node",
-        "dependencies": {
-                "python-shell": "^0.4.0",
-                "sequence": "^3.0.0"
-        },
-        "devDependencies": {},
-        "scripts": {
-                "install": "./install-python-dep.sh",
-                "test": "node example/test"
-        },
-        "author": "Joseph Garrone",
-        "license": "MIT"
+        ]
 }

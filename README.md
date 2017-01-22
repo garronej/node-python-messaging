@@ -6,9 +6,6 @@ This module is simply a JavaScript bridge to the python-messaging library.
 
 Require python ( 2.5 up to 3.2 ), pip and virtualenv
 
-This module provide typescript ambient. cf *index.d.ts*
-Even if you are not using typescript this file can provide you useful information.
-
 The module provide two function  decodePdu and buildSmsSubmitPdus
 
 *decodePdu* will decode any PDU originated from service center,
@@ -40,7 +37,7 @@ npm install garronej/node-python-messaging
 
 #Usage: 
 
-See example/test.js
+See lib/test/main.js
 
 ````javascript
 
@@ -81,7 +78,7 @@ messaging.decodePdu(pdu, function(error, sms){
 //This is a SMS-STATUS-REPORT pdu
 pdu= "07913306092021F0066E0B913336766883F5711012505040407110125050504000";
 
-messaging.smsDeliver(pdu, function(error, sms){
+messaging.decodePdu(pdu, function(error, sms){
 
         if( error ) throw error;
 
