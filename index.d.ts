@@ -27,12 +27,18 @@ declare module "node-python-messaging" {
         type: TP_MTI;
         date: Date;
         fmt: Fmt;
-        sr: {
+        //if SMS-STATUS-REPORT
+        sr?: {
             recipient: string;
             scts: Date;
             dt: Date;
             status: number;
         };
+        //if SMS-DELIVER and User Data Header present
+        ref?: number;
+        cnt?: number;
+        seq?: number;
+
     }
 
     export enum Fmt {
