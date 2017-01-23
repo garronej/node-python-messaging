@@ -1,6 +1,5 @@
 import * as PythonShell from "python-shell";
 
-
 export interface Pdu {
         pdu: string;
         length: number; //length to pass to AT+CMGS
@@ -24,7 +23,7 @@ export interface Sms {
                 recipient: string; //phone number
                 scts: Date; //service center time tamp
                 dt: Date; //discharge time
-                status: number;
+                status: TP_ST | byte;
         };
         //User Data Header present => SMS-DELIVER multipart or SMS-STATUS-REPORT
         ref?: number; //message ref returned by CMGS
@@ -51,12 +50,12 @@ export enum TP_ST {
         COMPLETED_UNABLE_TO_CONFIRM_DELIVERY = 0b00000001,
         COMPLETED_REPLACED = 0b00000010,
 
-        TEMPORARY_ERROR_CONGESTION = 0b00100000,
-        TEMPORARY_ERROR_SME_BUSY = 0b00100001,
-        TEMPORARY_ERROR_NO_RESPONSE_FROM_SME = 0b00100010,
-        TEMPORARY_ERROR_SERVICE_REJECTED = 0b00100011,
-        TEMPORARY_QOS_UNAVAILABLE = 0b00100100,
-        TEMPORARY_ERROR_SME_ERROR = 0b00100100,
+        STILL_TRYING_CONGESTION = 0b00100000,
+        STILL_TRYING_SME_BUSY = 0b00100001,
+        STILL_TRYING_NO_RESPONSE_FROM_SME = 0b00100010,
+        STILL_TRYING_SERVICE_REJECTED = 0b00100011,
+        STILL_TRYING_QOS_UNAVAILABLE = 0b00100100,
+        STILL_TRYING_SME_ERROR = 0b00100101,
 
         PERMANENT_ERROR_REMOTE_PROCEDURE_ERROR = 0b01000000,
         PERMANENT_ERROR_INCOMPATIBLE_DESTINATION = 0b01000001,
@@ -67,11 +66,42 @@ export enum TP_ST {
         PERMANENT_ERROR_SM_VALIDITY_PERIOD_EXPIRED = 0b01000110,
         PERMANENT_ERROR_SM_DELETED_BY_ORIGINATING_SME = 0b01000111,
         PERMANENT_ERROR_SM_DELETED_BY_SC_ADMINISTRATION = 0b01001000,
-        PERMANENT_ERROR_SM_DOES_NOT_EXIST = 0b01001001
+        PERMANENT_ERROR_SM_DOES_NOT_EXIST = 0b01001001,
+
+        TEMPORARY_ERROR_CONGESTION = 0b01100000,
+        TEMPORARY_ERROR_SME_BUSY = 0b01100001,
+        TEMPORARY_ERROR_NO_RESPONSE_FROM_SME = 0b01100010,
+        TEMPORARY_ERROR_SERVICE_REJECTED = 0b01100011,
+        TEMPORARY_ERROR_QOS_UNAVAILABLE = 0b01100100,
+        TEMPORARY_ERROR_SME_ERROR = 0b01100101
 }
 
+export enum ST_CLASS { COMPLETED, STILL_TRYING, PERMANENT_ERROR, TEMPORARY_ERROR, RESERVED, SPECIFIC_TO_SC }
+
+//All reserved should be interpreted as TEMPORARY_ERROR_SERVICE_REJECTED
+export function stClassOf(st: TP_ST): ST_CLASS {
+
+        if (0b00000000 <= st && st <= 0b00000010) return ST_CLASS.COMPLETED;
+        if (0b00100000 <= st && st <= 0b00100101) return ST_CLASS.STILL_TRYING;
+        if (0b01000000 <= st && st <= 0b01001001) return ST_CLASS.PERMANENT_ERROR;
+        if( 0b01100000 <= st && st <= 0b01100101) return ST_CLASS.TEMPORARY_ERROR;
+
+        if (
+                (0b10000000 <= st && st <= 0b11111111) ||
+                (0b00000011 <= st && st <= 0b00001111) ||
+                (0b00100110 <= st && st <= 0b00101111) ||
+                (0b01001010 <= st && st <= 0b01001111) ||
+                (0b01100110 <= st && st <= 0b01101001) ||
+                (0b01101010 <= st && st <= 0b01101111)
+        ) return ST_CLASS.RESERVED;
+
+        return ST_CLASS.SPECIFIC_TO_SC;
+
+}
+
+
 //DECODE service center ( SC ) to MS ( mobile station switched on with SIM module )
-export function decodePdu(pdu: string, callback: (error: Error, sms: Sms) => void): void{
+export function decodePdu(pdu: string, callback: (error: Error, sms: Sms) => void): void {
 
         bridge("smsDeliver", { "pdu": pdu }, function (error, out) {
 
@@ -97,9 +127,9 @@ export function buildSmsSubmitPdus(params: {
         csca?: string;
         klass?: number;
         request_status?: boolean;
-}, callback: (error: Error, pdus: Pdu[]) => void): void{
-        
-        let args: any= {};
+}, callback: (error: Error, pdus: Pdu[]) => void): void {
+
+        let args: any = {};
 
         Object.assign(args, params);
 
@@ -117,16 +147,16 @@ let options = {
         "scriptPath": __dirname + "/../../src/lib/"
 };
 
-function bridge( method: string, args: any, callback: (error: Error, out:any)=>void): void{
+function bridge(method: string, args: any, callback: (error: Error, out: any) => void): void {
 
-                PythonShell.run("bridge.py", Object.assign({
-                        "args": [method, JSON.stringify(args)]
-                }, options), function (error, out) {
+        PythonShell.run("bridge.py", Object.assign({
+                "args": [method, JSON.stringify(args)]
+        }, options), function (error, out) {
 
-                        if (error) return callback(error, null);
+                if (error) return callback(error, null);
 
-                        callback(null, JSON.parse(out[0]));
+                callback(null, JSON.parse(out[0]));
 
-                });
+        });
 
 }
