@@ -3,33 +3,33 @@ import * as PythonShell from "python-shell";
 
 export interface Pdu {
         pdu: string;
-        length: number;
-        seq: number;
-        cnt: number;
+        length: number; //length to pass to AT+CMGS
+        seq: number; //part number over total
+        cnt: number; //total number of parts
 }
 
 export type byte = number;
 
 export interface Sms {
         text: string;
-        pid: byte;
-        dcs: byte;
-        csca: string;
+        pid: byte; //Protocol identifier
+        dcs: byte; //data coding scheme
+        csca: string; //Service center address
         number: "SR-OK" | "SR-UNKNOWN" | "SR-STORED" | string;
-        type: TP_MTI;
+        type: TP_MTI; //2bit, pdu type
         date: Date;
-        fmt: Fmt;
+        fmt: Fmt; //Encoding format
         //if SMS-STATUS-REPORT
         sr?: {
-                recipient: string;
-                scts: Date;
-                dt: Date;
+                recipient: string; //phone number
+                scts: Date; //service center time tamp
+                dt: Date; //discharge time
                 status: number;
         };
         //User Data Header present => SMS-DELIVER multipart or SMS-STATUS-REPORT
-        ref?: number;
-        cnt?: number;
-        seq?: number;
+        ref?: number; //message ref returned by CMGS
+        cnt?: number; //total
+        seq?: number; //number over total
 
 }
 
