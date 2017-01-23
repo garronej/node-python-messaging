@@ -26,7 +26,7 @@ export interface Sms {
                 dt: Date;
                 status: number;
         };
-        //if SMS-DELIVER and User Data Header present
+        //User Data Header present => SMS-DELIVER multipart or SMS-STATUS-REPORT
         ref?: number;
         cnt?: number;
         seq?: number;
