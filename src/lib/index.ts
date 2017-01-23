@@ -78,7 +78,7 @@ export enum TP_ST {
 
 export enum ST_CLASS { COMPLETED, STILL_TRYING, PERMANENT_ERROR, TEMPORARY_ERROR, RESERVED, SPECIFIC_TO_SC }
 
-//All reserved should be interpreted as TEMPORARY_ERROR_SERVICE_REJECTED
+//All reserved should be interpreted as STILL_TRYING_SERVICE_REJECTED
 export function stClassOf(st: TP_ST): ST_CLASS {
 
         if (0b00000000 <= st && st <= 0b00000010) return ST_CLASS.COMPLETED;
