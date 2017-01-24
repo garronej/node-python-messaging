@@ -2,6 +2,8 @@ var messaging= require("../../out/lib/index");
 
 //Test SMS-DELIVER pdu, 
 
+//Set timezone
+messaging.setTimeZone("Europe/Paris");
 
 //Simple SMS
 pdu= "07913306092031F0040B913336766883F500007110125050524002CF35";

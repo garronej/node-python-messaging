@@ -1,6 +1,8 @@
 # node-python-messaging
 
-Encode and decode SMS pdu, including multipart messages and status report.
+This module allow to:
+* Build SMS-SUBMIT pdu
+* Decode SMS-DELIVER and SMS-STATUS-REPORT pdu.
 
 This module is simply a JavaScript bridge to the python-messaging library.
 
@@ -9,16 +11,16 @@ Require python ( 2.5 up to 3.2 ), pip and virtualenv
 The module provide two function  decodePdu and buildSmsSubmitPdus
 
 *decodePdu* will decode any PDU originated from service center,
-meaning a SMS-DELIVER or a SMS-STATUS-REPORT pdu.
+meaning a SMS-DELIVER or a SMS-STATUS-REPORT pdu. ( SMS-SUBMIT-REPORT not supported )
 
 *buildSmsSubmitPdus* will create a SMS-SUBMIT pdu ready to be sent.
-It the text is too long to fit in one SMS it will be split among 
+If the text is too long to fit in one SMS it will be split among 
 multiples pdus.
 
 All the technical specification are described in 3GPP TS 03.40
 
 Original python project: https://github.com/pmarti/python-messaging/
-NOTE: The port does not include MMS yet.
+NOTE: The port does not include MMS yet
 
 SMS Features
 ============
@@ -31,20 +33,37 @@ SMS Features
 
 #Install:
 
-First install python, pip and virtualenv then:
+First install python, pip and virtualenv on your machine then:
 
 npm install garronej/node-python-messaging
 
 #Usage: 
 
-See lib/test/main.js
+If you want the date object to be actuate you have to specify the timezone
+in witch the SMS have been delivered with the function *setTimeZone*
+By default the time zone used is the one defined in TZ environment variable ( process.env.TZ )
+but this value is often unset and even if the timeZone is define properly you might 
+want to set the time zone anyway. 
+For example if you are running this module from a server hosted in Frankfurt but the SMS have been 
+delivered in Los Angeles you want to set the time zone to "America/Los_Angeles".
+
+ref: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+
+Raw JavaScript example: *./src/test/main.js*
+Run it with *npm run test-js* or *node ./src/test/main.js*
+
+TypeScript example: *./src/test/main.ts*
+Run it with *npm test* or *node ./out/test/main*
 
 ````javascript
 
 var messaging= require("node-python-messaging");
 
-//Test SMS-DELIVER pdu, 
 
+//Set timezone
+setTimeZone("Europe/Paris");
+
+//Test SMS-DELIVER pdu, 
 
 //Simple SMS
 pdu= "07913306092031F0040B913336766883F500007110125050524002CF35";

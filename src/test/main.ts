@@ -1,4 +1,13 @@
-import { decodePdu, buildSmsSubmitPdus, TP_MTI, TP_ST } from "../lib/index";
+import { 
+        decodePdu, 
+        buildSmsSubmitPdus, 
+        setTimeZone,
+        TP_MTI, 
+        TP_ST 
+} from "../lib/index";
+
+//Set timezone
+setTimeZone("Europe/Paris");
 
 //Test SMS-DELIVER pdu, 
 
