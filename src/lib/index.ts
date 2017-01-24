@@ -1,7 +1,7 @@
 import * as PythonShell from "python-shell";
 import { tz } from "moment-timezone";
-import { TimeZone } from "./timeZone";
-export { TimeZone } from "./timeZone";
+import { TimeZone } from "./TimeZone";
+export { TimeZone } from "./TimeZone";
 
 
 export interface Pdu {
