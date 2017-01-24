@@ -39,16 +39,6 @@ npm install garronej/node-python-messaging
 
 #Usage: 
 
-If you want the date object to be actuate you have to specify the timezone
-in witch the SMS have been delivered with the function *setTimeZone*
-By default the time zone used is the one defined in TZ environment variable ( process.env.TZ )
-but this value is often unset and even if the timeZone is define properly you might 
-want to set the time zone anyway. 
-For example if you are running this module from a server hosted in Frankfurt but the SMS have been 
-delivered in Los Angeles you want to set the time zone to "America/Los_Angeles".
-
-ref: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-
 Raw JavaScript example: *./src/test/main.js*
 Run it with *npm run test-js* or *node ./src/test/main.js*
 
@@ -58,10 +48,6 @@ Run it with *npm test* or *node ./out/test/main*
 ````javascript
 
 var messaging= require("node-python-messaging");
-
-
-//Set timezone
-setTimeZone("Europe/Paris");
 
 //Test SMS-DELIVER pdu, 
 

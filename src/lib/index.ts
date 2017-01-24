@@ -1,7 +1,4 @@
 import * as PythonShell from "python-shell";
-import { tz } from "moment-timezone";
-import { TimeZone } from "./TimeZone";
-export { TimeZone } from "./TimeZone";
 
 
 export interface Pdu {
@@ -104,9 +101,6 @@ export function stClassOf(st: TP_ST): ST_CLASS {
 }
 
 
-let timeZone_: TimeZone = process.env.TZ;
-
-export function setTimeZone( timeZone: TimeZone ){ timeZone_= timeZone; }
 
 //DECODE service center ( SC ) to MS ( mobile station switched on with SIM module )
 export function decodePdu(pdu: string, callback: (error: Error, sms: Sms) => void): void {
@@ -115,11 +109,11 @@ export function decodePdu(pdu: string, callback: (error: Error, sms: Sms) => voi
 
                 if (error) return callback(error, null);
 
-                if (out.date) out.date = parseDate(out.date);
+                if (out.date) out.date = new Date(out.date);
 
                 if (out.type === 0b10) {
-                        if (out.sr.dt) out.sr.dt = parseDate(out.sr.dt);
-                        if (out.sr.scts) out.sr.scts = parseDate(out.sr.scts);
+                        if (out.sr.dt) out.sr.dt = new Date(out.sr.dt);
+                        if (out.sr.scts) out.sr.scts = new Date(out.sr.scts);
                 }
 
                 callback(null, out);
@@ -168,5 +162,3 @@ function bridge(method: string, args: any, callback: (error: Error, out: any) =>
         });
 
 }
-
-function parseDate(dateStr: string): Date { return new Date(tz(dateStr, timeZone_).format()); }
