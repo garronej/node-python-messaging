@@ -1,6 +1,9 @@
 import { 
         decodePdu, 
         buildSmsSubmitPdus, 
+        SmsDeliver,
+        SmsDeliverPart,
+        SmsStatusReport,
         TP_MTI, 
         TP_ST 
 } from "../lib/index";
@@ -11,13 +14,30 @@ import {
 //Simple SMS
 pdu= "07913306092031F0040B913336766883F500007110125050524002CF35";
 
+let expect1= String.raw
+`{
+  "type": 0,
+  "text": "Ok",
+  "pid": 0,
+  "dcs": 0,
+  "csca": "+33609002130",
+  "number": "+33636786385",
+  "date": "2017-01-21T04:05:25.000Z",
+  "fmt": 0,
+  "_fmt": "GSM0338",
+  "_type": "SMS_DELIVER"
+}`;
+
 decodePdu(pdu, (error, sms) => {
 
         if( error ) throw error;
 
-        console.log(sms);
+        if( !(sms instanceof SmsDeliver) ) 
+                throw new Error("FAIL");
 
-        console.assert(sms.type === TP_MTI.SMS_DELIVER);
+        console.assert(JSON.stringify(sms, null, 2) === expect1);
+
+        console.log("PASS");
 
 });
 
@@ -30,15 +50,35 @@ var pdu= [
         "181466A7E3F5B0AB4A0795DDE936284C06B5D3EE741B642FBBD3E1360B14AFA7E7"
 ].join("");
 
+//cSpell: disable
+let expect2= String.raw
+`{
+  "type": 0,
+  "text": "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis",
+  "pid": 0,
+  "dcs": 0,
+  "csca": "+33609001390",
+  "number": "+33636786385",
+  "date": "2016-12-10T17:29:15.000Z",
+  "fmt": 0,
+  "_fmt": "GSM0338",
+  "_type": "SMS_DELIVER",
+  "ref": 25,
+  "cnt": 3,
+  "seq": 1
+}`;
+//cSpell: enable
+
 decodePdu(pdu, function(error, sms){
 
         if( error ) throw error;
 
-        console.log(sms);
+        if( !(sms instanceof SmsDeliverPart) )
+                throw new Error("FAIL");
 
-        console.assert(sms.type === TP_MTI.SMS_DELIVER);
+        console.assert(JSON.stringify(sms, null, 2) === expect2);
 
-        console.assert(sms.cnt === 3 && sms.seq === 1 );
+        console.log("PASS");
 
 });
 
@@ -46,15 +86,41 @@ decodePdu(pdu, function(error, sms){
 //This is a SMS-STATUS-REPORT pdu
 pdu= "07913306092021F0066E0B913336766883F5711012505040407110125050504000";
 
+let expect3= String.raw
+`{
+  "type": 2,
+  "text": "+33636786385|17/01/21 05:05:04|17/01/21 05:05:05",
+  "pid": null,
+  "dcs": null,
+  "csca": "+33609002120",
+  "number": "SR-OK",
+  "date": "2017-01-21T04:05:04.000Z",
+  "fmt": 8,
+  "_fmt": "UCS2",
+  "_type": "SMS_STATUS_REPORT",
+  "ref": 110,
+  "cnt": 0,
+  "seq": 0,
+  "sr": {
+    "status": 0,
+    "scts": "2017-01-21T04:05:04.000Z",
+    "dt": "2017-01-21T04:05:05.000Z",
+    "recipient": "+33636786385"
+  },
+  "_status": "COMPLETED_RECEIVED",
+  "_stClass": "COMPLETED"
+}`;
+
 decodePdu(pdu, function(error, sms){
 
         if( error ) throw error;
 
-        console.log(sms);
+        if( !(sms instanceof SmsStatusReport) )
+                throw new Error("FAIL");
 
-        console.assert(sms.type === TP_MTI.SMS_STATUS_REPORT );
+        console.assert(JSON.stringify(sms, null, 2) === expect3);
 
-        console.assert( sms.sr.status === TP_ST.COMPLETED_RECEIVED );
+        console.log("PASS");
 
 });
 
@@ -68,6 +134,7 @@ request_status: boolean (default false)
 */
 
 //In this example the text does not exceed 160 char so you get only one pdu.
+
 buildSmsSubmitPdus({
         "number": "+33636786385",
         "text": "Mon message é là",
@@ -77,8 +144,12 @@ buildSmsSubmitPdus({
 
         if( error ) throw error;
 
-        console.log(pdus);
+        console.assert(pdus.length === 1);
+        console.assert(pdus[0].pdu.match(/^[a-zA-Z0-9]*$/));
+        console.assert(pdus[0].length === 34);
+        console.assert(pdus[0].seq === 1);
+        console.assert(pdus[0].cnt === 1);
 
-        console.assert(pdus.length === 1 );
+        console.log("PASS");
 
 });
