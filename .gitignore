@@ -39,6 +39,6 @@ jspm_packages
 
 virtual
 
-.vscode/settings.json
+.vscode
 
 out
