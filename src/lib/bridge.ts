@@ -256,47 +256,79 @@ function descriptorToInstance(descriptor: Sms): SmsDeliver | SmsDeliverPart | Sm
 }
 
 
+
 //DECODE service center ( SC ) to MS ( mobile station switched on with SIM module )
-export function decodePdu(pdu: string, callback: (error: null | Error, sms: Sms) => void): void {
+export function decodePdu(
+        pdu: string,
+        callback?: (error: null | Error, sms: Sms) => void
+): Promise<[null | Error, Sms]> {
 
-        bridge("smsDeliver", { "pdu": pdu }, function (error, out) {
+        return new Promise<[null | Error, Sms]>(resolve => {
 
-                if (error) return callback(error, {} as Sms);
+                bridge("smsDeliver", { "pdu": pdu }, (error, obj: any | null) => {
 
-                if (out.date) out.date = new Date(out.date);
+                        if (error) {
+                                if( callback ) callback(error, null as any);
+                                resolve([error, null as any]);
+                                return;
+                        } else obj = obj!;
 
-                if (out.type === 0b10) {
-                        if (out.sr.dt) out.sr.dt = new Date(out.sr.dt);
-                        if (out.sr.scts) out.sr.scts = new Date(out.sr.scts);
-                }
+                        let smsDescriptor: Sms = (function parseDate(obj: any): Sms {
 
-                callback(null, descriptorToInstance(out));
+                                if (obj.date) obj.date = new Date(obj.date);
+
+                                if (obj.type === 0b10) {
+                                        if (obj.sr.dt) obj.sr.dt = new Date(obj.sr.dt);
+                                        if (obj.sr.scts) obj.sr.scts = new Date(obj.sr.scts);
+                                }
+
+                                return obj;
+
+                        })(obj);
+
+                        let smsInstance = descriptorToInstance(smsDescriptor);
+
+                        if( callback ) callback(null, smsInstance);
+                        resolve([null, smsInstance]);
+
+
+                });
 
         });
 
 }
 
-export function buildSmsSubmitPdus(params: {
-        number: string;
-        text: string;
-        validity?: Date;
-        csca?: string;
-        klass?: number;
-        request_status?: boolean;
-}, callback: (error: Error, pdus: Pdu[]) => void): void {
+export function buildSmsSubmitPdus(
+        params: {
+                number: string; 
+                text: string; 
+                validity?: Date; 
+                csca?: string; 
+                klass?: number; 
+                request_status?: boolean;
+        },
+        callback?: (error: null | Error, pdus: Pdu[]) => void
+): Promise<[null | Error, Pdu[]]> {
 
-        let args: any = {};
+        return new Promise<[null | Error, Pdu[]]>(resolve => {
 
-        Object.assign(args, params);
+                let args: any = { ...params };
 
-        if (params.validity instanceof Date) args.validity = params.validity.toUTCString();
+                if (params.validity instanceof Date)
+                        args.validity = params.validity.toUTCString();
 
-        bridge("smsSubmit", args, callback);
+                bridge("smsSubmit", args, (error: null | Error, pdus: Pdu[] | null) => {
+
+                        if (callback) callback(error, pdus!);
+                        resolve([error, pdus!])
+
+                });
+        });
 
 }
 
 
-let options = {
+const options = {
         "mode": "text",
         "pythonPath": __dirname + "/../../out/virtual/bin/python",
         "pythonOptions": ['-u'],

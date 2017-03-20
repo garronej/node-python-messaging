@@ -12,9 +12,9 @@ import {
 //Test SMS-DELIVER pdu, 
 
 //Simple SMS
-pdu= "07913306092031F0040B913336766883F500007110125050524002CF35";
+let pdu_1= "07913306092031F0040B913336766883F500007110125050524002CF35";
 
-let expect1= String.raw
+let expect_1= String.raw
 `{
   "type": 0,
   "text": "Ok",
@@ -28,21 +28,21 @@ let expect1= String.raw
   "_type": "SMS_DELIVER"
 }`;
 
-decodePdu(pdu, (error, sms) => {
+decodePdu(pdu_1, (error_1, sms_1) => {
 
-        if( error ) throw error;
+        if( error_1 ) throw error_1;
 
-        if( !(sms instanceof SmsDeliver) ) 
+        if( !(sms_1 instanceof SmsDeliver) ) 
                 throw new Error("FAIL");
 
-        console.assert(JSON.stringify(sms, null, 2) === expect1);
+        console.assert(JSON.stringify(sms_1, null, 2) === expect_1);
 
-        console.log("PASS");
+        console.log("PASS_1");
 
 });
 
 //This pdu is part 1 over 3 of a tree part concatenated SMS. => sms.seq===1 && sms.cnt===3
-var pdu= [
+let pdu_2= [
         "07913306091093F0400B913336766883F5000061210181925140A00500031903019",
         "86F79B90D4AC3E7F53688FC66BFE5A0799A0E0AB7CB741668FC76CFCB637A995E97",
         "83C2E4343C3D4F8FD3EE33A8CC4ED359A079990C22BF41E5747DDE7E9341F4721BF",
@@ -51,7 +51,7 @@ var pdu= [
 ].join("");
 
 //cSpell: disable
-let expect2= String.raw
+let expect_2= String.raw
 `{
   "type": 0,
   "text": "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.Ut enim ad minim veniam, quis",
@@ -69,24 +69,24 @@ let expect2= String.raw
 }`;
 //cSpell: enable
 
-decodePdu(pdu, function(error, sms){
+decodePdu(pdu_2, function(error_2 , sms_2){
 
-        if( error ) throw error;
+        if( error_2 ) throw error_2;
 
-        if( !(sms instanceof SmsDeliverPart) )
+        if( !(sms_2 instanceof SmsDeliverPart) )
                 throw new Error("FAIL");
 
-        console.assert(JSON.stringify(sms, null, 2) === expect2);
+        console.assert(JSON.stringify(sms_2, null, 2) === expect_2);
 
-        console.log("PASS");
+        console.log("PASS_2");
 
 });
 
 
 //This is a SMS-STATUS-REPORT pdu
-pdu= "07913306092021F0066E0B913336766883F5711012505040407110125050504000";
+let pdu_3= "07913306092021F0066E0B913336766883F5711012505040407110125050504000";
 
-let expect3= String.raw
+let expect_3= String.raw
 `{
   "type": 2,
   "text": "+33636786385|17/01/21 05:05:04|17/01/21 05:05:05",
@@ -111,16 +111,16 @@ let expect3= String.raw
   "_stClass": "COMPLETED"
 }`;
 
-decodePdu(pdu, function(error, sms){
+decodePdu(pdu_3, (error_3, sms_3)=>{
 
-        if( error ) throw error;
+        if( error_3 ) throw error_3;
 
-        if( !(sms instanceof SmsStatusReport) )
+        if( !(sms_3 instanceof SmsStatusReport) )
                 throw new Error("FAIL");
 
-        console.assert(JSON.stringify(sms, null, 2) === expect3);
+        console.assert(JSON.stringify(sms_3, null, 2) === expect_3);
 
-        console.log("PASS");
+        console.log("PASS_3");
 
 });
 
@@ -140,16 +140,19 @@ buildSmsSubmitPdus({
         "text": "Mon message é là",
         "validity": new Date(),
         "request_status": true
-}, function(error, pdus){
+}, function (error_4, pdus_4) {
 
-        if( error ) throw error;
+        if (error_4) throw error_4;
 
-        console.assert(pdus.length === 1);
-        console.assert(pdus[0].pdu.match(/^[a-zA-Z0-9]*$/));
-        console.assert(pdus[0].length === 34);
-        console.assert(pdus[0].seq === 1);
-        console.assert(pdus[0].cnt === 1);
 
-        console.log("PASS");
+        console.assert(
+                pdus_4.length === 1 &&
+                pdus_4[0].pdu.match(/^[a-zA-Z0-9]*$/) &&
+                pdus_4[0].length === 34 &&
+                pdus_4[0].seq === 1 &&
+                pdus_4[0].cnt === 1
+        );
+
+        console.log("PASS_4");
 
 });
