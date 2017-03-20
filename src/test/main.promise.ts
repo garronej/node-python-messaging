@@ -8,6 +8,12 @@ import {
         TP_ST
 } from "../lib/index";
 
+process.on("unhandledRejection", error=> { 
+    console.log("INTERNAL ERROR");
+    console.log(error);
+    throw error;
+});
+
 
 let expect_1= String.raw
 `{

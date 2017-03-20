@@ -1,6 +1,6 @@
 {
   "name": "node-python-messaging",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "main": "./out/lib/index.js",
   "types": "./out/lib/index.d.ts",
   "description": "A port of the python-messaging library for node",
