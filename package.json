@@ -1,22 +1,23 @@
 {
   "name": "node-python-messaging",
-  "version": "1.7.1",
-  "main": "./out/lib/index.js",
-  "types": "./out/lib/index.d.ts",
-  "description": "A port of the python-messaging library for node",
+  "version": "1.7.2",
+  "main": "./dist/lib/index.js",
+  "types": "./dist/lib/index.d.ts",
+  "description": "A port of the python-messaging library for node in TypeScript",
   "dependencies": {
-    "@types/node": "^4.0.0",
-    "@types/python-shell": "^0.4.0",
-    "python-shell": "^0.4.0",
-    "typescript": "^2.1.6"
+    "python-shell": "^0.4.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "typescript": "^2.1.6",
+    "@types/python-shell": "^0.4.0",
+    "@types/node": "^4.0.0"
+  },
   "scripts": {
-    "postinstall": "npm run build",
+    "postinstall": "npm run pip",
     "build": "npm run tsc && npm run pip",
     "tsc": "./node_modules/.bin/tsc -p ./tsconfig.json",
     "pip": "./install-python-dep.sh",
-    "test": "node ./out/test/main && node ./out/test/main.promise",
+    "test": "node ./dist/test/main && node ./dist/test/main.promise",
     "test-js": "node ./src/test/main.js"
   },
   "author": "Joseph Garrone",

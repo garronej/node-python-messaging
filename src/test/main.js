@@ -1,4 +1,4 @@
-var messaging= require("../../out/lib/index");
+var messaging= require("../../dist/lib/index");
 
 //Test SMS-DELIVER pdu, 
 

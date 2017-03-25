@@ -41,4 +41,4 @@ virtual
 
 .vscode
 
-out
+dist/test

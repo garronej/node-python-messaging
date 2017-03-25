@@ -1,5 +1,5 @@
 import * as PythonShell from "python-shell";
-
+import * as path from "path";
 
 export interface Pdu {
         pdu: string;
@@ -330,9 +330,9 @@ export function buildSmsSubmitPdus(
 
 const options = {
         "mode": "text",
-        "pythonPath": __dirname + "/../../out/virtual/bin/python",
+        "pythonPath": path.join(__dirname, "..", "..", "dist", "virtual", "bin", "python"),
         "pythonOptions": ['-u'],
-        "scriptPath": __dirname + "/../../src/lib/"
+        "scriptPath": path.join(__dirname, "..", "..", "src", "lib")
 };
 
 function bridge(method: string, args: any, callback: (error: null | Error, out: any) => void): void {
