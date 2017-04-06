@@ -2,4 +2,4 @@
 mkdir -p ./dist/virtual 
 virtualenv ./dist/virtual
 . ./dist/virtual/bin/activate
-pip install -r requirements.txt
+./dist/virtual/bin/python ./dist/virtual/bin/pip install -r ./requirements.txt
