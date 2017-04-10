@@ -1,11 +1,12 @@
 {
   "name": "node-python-messaging",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "main": "./dist/lib/index.js",
   "types": "./dist/lib/index.d.ts",
   "description": "A port of the python-messaging library for node in TypeScript",
   "dependencies": {
-    "python-shell": "^0.4.0"
+    "python-shell": "^0.4.0",
+    "rejection-tracker": "garronej/rejection-tracker"
   },
   "devDependencies": {
     "typescript": "^2.1.6",
