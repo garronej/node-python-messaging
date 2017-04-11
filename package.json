@@ -1,6 +1,6 @@
 {
   "name": "node-python-messaging",
-  "version": "1.7.3",
+  "version": "1.7.4",
   "main": "./dist/lib/index.js",
   "types": "./dist/lib/index.d.ts",
   "description": "A port of the python-messaging library for node in TypeScript",
@@ -17,7 +17,7 @@
     "postinstall": "npm run pip",
     "build": "npm run tsc && npm run pip",
     "tsc": "./node_modules/.bin/tsc -p ./tsconfig.json",
-    "pip": "./install-python-dep.sh",
+    "pip": "/bin/sh ./install-python-dep.sh",
     "test": "node ./dist/test/main && node ./dist/test/main.promise",
     "test-js": "node ./src/test/main.js"
   },

@@ -1,3 +1,5 @@
+require("rejection-tracker")(__dirname);
+
 import {
         decodePdu,
         buildSmsSubmitPdus,
@@ -7,13 +9,6 @@ import {
         TP_MTI,
         TP_ST
 } from "../lib/index";
-
-process.on("unhandledRejection", error=> { 
-    console.log("INTERNAL ERROR");
-    console.log(error);
-    throw error;
-});
-
 
 let expect_1= String.raw
 `{
@@ -80,17 +75,15 @@ let expect_3= String.raw
         //Simple SMS
         let pdu_1 = "07913306092031F0040B913336766883F500007110125050524002CF35";
 
-
         let [error_1, sms_1] = await decodePdu(pdu_1);
 
         if (error_1) throw error_1;
 
-        if (!(sms_1 instanceof SmsDeliver))
-                throw new Error("FAIL");
+        console.assert( sms_1 instanceof SmsDeliver)
 
         console.assert(JSON.stringify(sms_1, null, 2) === expect_1);
 
-        console.log("PASS_1");
+        console.log("PASS_ASYNC_1");
 
         //This pdu is part 1 over 3 of a tree part concatenated SMS. => sms.seq===1 && sms.cnt===3
         let pdu_2 = [
@@ -106,12 +99,12 @@ let expect_3= String.raw
 
         if (error_2) throw error_2;
 
-        if (!(sms_2 instanceof SmsDeliverPart))
-                throw new Error("FAIL");
+
+        console.assert(sms_2 instanceof SmsDeliverPart)
 
         console.assert(JSON.stringify(sms_2, null, 2) === expect_2);
 
-        console.log("PASS_2");
+        console.log("PASS_ASYNC_2");
 
 
         //This is a SMS-STATUS-REPORT pdu
@@ -122,12 +115,11 @@ let expect_3= String.raw
 
         if (error_3) throw error_3;
 
-        if (!(sms_3 instanceof SmsStatusReport))
-                throw new Error("FAIL");
+        console.assert(sms_3 instanceof SmsStatusReport);
 
         console.assert(JSON.stringify(sms_3, null, 2) === expect_3);
 
-        console.log("PASS_3");
+        console.log("PASS_ASYNC_3");
 
 
         /*
@@ -157,6 +149,6 @@ let expect_3= String.raw
                 pdus_4[0].cnt === 1
         );
 
-        console.log("PASS_4");
+        console.log("PASS_ASYNC_4");
 
 })();
