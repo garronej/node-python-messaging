@@ -124,18 +124,19 @@ let expect_3= String.raw
 
         //In this example the text does not exceed 160 char so you get only one pdu.
 
+
+
         let pdus_4 = await buildSmsSubmitPdus({
                 "number": "+33636786385",
-                "text": "Mon message é là",
+                "text": "=>un emoji 🤕!<=",
                 "validity": new Date(),
                 "request_status": true
         });
 
-
         console.assert(
                 pdus_4.length === 1 &&
                 pdus_4[0].pdu.match(/^[a-zA-Z0-9]*$/) &&
-                pdus_4[0].length === 34 &&
+                pdus_4[0].length === 52 &&
                 pdus_4[0].seq === 1 &&
                 pdus_4[0].cnt === 1
         );

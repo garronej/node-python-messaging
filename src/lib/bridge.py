@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sys
 import json
 
@@ -27,7 +29,9 @@ def smsSubmit(args):
     from messaging.sms import SmsSubmit
     from datetime import datetime
 
-    sms= SmsSubmit(args["number"], args["text"])
+    text= ''.join(map(unichr, args["text_as_char_code_arr"]))
+
+    sms= SmsSubmit(args["number"], text)
 
     if "csca" in args:
         sms.csca= args["csca"]

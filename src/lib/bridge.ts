@@ -313,7 +313,18 @@ export function buildSmsSubmitPdus(
 
         return new Promise<Pdu[]>((resolve, reject) => {
 
-                let args: any = { ...params };
+                let { text, ...args } = params as any;
+
+                args["text_as_char_code_arr"] = (function strToCodesArray(str: string): number[] {
+
+                        let out: number[] = [];
+
+                        for (let index = 0; index < str.length; index++)
+                                out.push(str.charCodeAt(index));
+
+                        return out;
+
+                })(text);
 
                 if (params.validity instanceof Date)
                         args.validity = params.validity.toUTCString();
@@ -338,14 +349,17 @@ const options = {
 
 function bridge(method: string, args: any, callback: (error: null | Error, out: any) => void): void {
 
-        PythonShell.run("bridge.py", Object.assign({
-                "args": [method, JSON.stringify(args)]
-        }, options), function (error, out) {
 
-                if (error) return callback(error, null);
+        PythonShell.run(
+                "bridge.py",
+                { ...options, "args": [method, JSON.stringify(args)] },
+                (error, out) => {
 
-                callback(null, JSON.parse(out[0]));
+                        if (error) return callback(error, null);
 
-        });
+                        callback(null, JSON.parse(out[0]));
+
+                }
+        );
 
 }

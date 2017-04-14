@@ -17,6 +17,15 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     }
     return t;
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
+            t[p[i]] = s[p[i]];
+    return t;
+};
 exports.__esModule = true;
 var PythonShell = require("python-shell");
 var path = require("path");
@@ -183,7 +192,13 @@ function decodePdu(pdu, callback) {
 exports.decodePdu = decodePdu;
 function buildSmsSubmitPdus(params, callback) {
     return new Promise(function (resolve, reject) {
-        var args = __assign({}, params);
+        var _a = params, text = _a.text, args = __rest(_a, ["text"]);
+        args["text_as_char_code_arr"] = (function strToCodesArray(str) {
+            var out = [];
+            for (var index = 0; index < str.length; index++)
+                out.push(str.charCodeAt(index));
+            return out;
+        })(text);
         if (params.validity instanceof Date)
             args.validity = params.validity.toUTCString();
         bridge("smsSubmit", args, function (error, pdus) {
@@ -202,9 +217,7 @@ var options = {
     "scriptPath": path.join(__dirname, "..", "..", "src", "lib")
 };
 function bridge(method, args, callback) {
-    PythonShell.run("bridge.py", Object.assign({
-        "args": [method, JSON.stringify(args)]
-    }, options), function (error, out) {
+    PythonShell.run("bridge.py", __assign({}, options, { "args": [method, JSON.stringify(args)] }), function (error, out) {
         if (error)
             return callback(error, null);
         callback(null, JSON.parse(out[0]));
