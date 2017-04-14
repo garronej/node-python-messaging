@@ -103,7 +103,7 @@ export declare enum TP_ST {
     TEMPORARY_ERROR_SME_ERROR = 101,
 }
 export declare type ST_CLASS = "COMPLETED" | "STILL TRYING" | "PERMANENT ERROR" | "TEMPORARY ERROR" | "RESERVED" | "SPECIFIC TO SC";
-export declare function decodePdu(pdu: string, callback?: (error: null | Error, sms: Sms) => void): Promise<[null | Error, Sms]>;
+export declare function decodePdu(pdu: string, callback?: (error: null | Error, sms: Sms) => void): Promise<Sms>;
 export declare function buildSmsSubmitPdus(params: {
     number: string;
     text: string;
@@ -111,4 +111,4 @@ export declare function buildSmsSubmitPdus(params: {
     csca?: string;
     klass?: number;
     request_status?: boolean;
-}, callback?: (error: null | Error, pdus: Pdu[]) => void): Promise<[null | Error, Pdu[]]>;
+}, callback?: (error: null | Error, pdus: Pdu[]) => void): Promise<Pdu[]>;

@@ -1,4 +1,4 @@
-require("rejection-tracker")(__dirname);
+require("rejection-tracker").main();
 
 import {
         decodePdu,
@@ -75,9 +75,7 @@ let expect_3= String.raw
         //Simple SMS
         let pdu_1 = "07913306092031F0040B913336766883F500007110125050524002CF35";
 
-        let [error_1, sms_1] = await decodePdu(pdu_1);
-
-        if (error_1) throw error_1;
+        let sms_1 = await decodePdu(pdu_1);
 
         console.assert( sms_1 instanceof SmsDeliver)
 
@@ -95,10 +93,7 @@ let expect_3= String.raw
         ].join("");
 
 
-        let [error_2, sms_2] = await decodePdu(pdu_2);
-
-        if (error_2) throw error_2;
-
+        let sms_2 = await decodePdu(pdu_2);
 
         console.assert(sms_2 instanceof SmsDeliverPart)
 
@@ -110,10 +105,7 @@ let expect_3= String.raw
         //This is a SMS-STATUS-REPORT pdu
         let pdu_3 = "07913306092021F0066E0B913336766883F5711012505040407110125050504000";
 
-
-        let [error_3, sms_3] = await decodePdu(pdu_3);
-
-        if (error_3) throw error_3;
+        let sms_3 = await decodePdu(pdu_3);
 
         console.assert(sms_3 instanceof SmsStatusReport);
 
@@ -132,14 +124,13 @@ let expect_3= String.raw
 
         //In this example the text does not exceed 160 char so you get only one pdu.
 
-        let [error_4, pdus_4] = await buildSmsSubmitPdus({
+        let pdus_4 = await buildSmsSubmitPdus({
                 "number": "+33636786385",
                 "text": "Mon message é là",
                 "validity": new Date(),
                 "request_status": true
         });
 
-        if (error_4) throw error_4;
 
         console.assert(
                 pdus_4.length === 1 &&

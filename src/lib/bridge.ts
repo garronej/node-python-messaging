@@ -261,17 +261,19 @@ function descriptorToInstance(descriptor: Sms): SmsDeliver | SmsDeliverPart | Sm
 export function decodePdu(
         pdu: string,
         callback?: (error: null | Error, sms: Sms) => void
-): Promise<[null | Error, Sms]> {
+): Promise<Sms> {
 
-        return new Promise<[null | Error, Sms]>(resolve => {
+        return new Promise<Sms>((resolve, reject) => {
 
                 bridge("smsDeliver", { "pdu": pdu }, (error, obj: any | null) => {
 
                         if (error) {
+
                                 if( callback ) callback(error, null as any);
-                                resolve([error, null as any]);
+                                else reject(error);
+
                                 return;
-                        } else obj = obj!;
+                        };
 
                         let smsDescriptor: Sms = (function parseDate(obj: any): Sms {
 
@@ -289,8 +291,7 @@ export function decodePdu(
                         let smsInstance = descriptorToInstance(smsDescriptor);
 
                         if( callback ) callback(null, smsInstance);
-                        resolve([null, smsInstance]);
-
+                        else resolve(smsInstance);
 
                 });
 
@@ -308,9 +309,9 @@ export function buildSmsSubmitPdus(
                 request_status?: boolean;
         },
         callback?: (error: null | Error, pdus: Pdu[]) => void
-): Promise<[null | Error, Pdu[]]> {
+): Promise<Pdu[]> {
 
-        return new Promise<[null | Error, Pdu[]]>(resolve => {
+        return new Promise<Pdu[]>((resolve, reject) => {
 
                 let args: any = { ...params };
 
@@ -320,7 +321,7 @@ export function buildSmsSubmitPdus(
                 bridge("smsSubmit", args, (error: null | Error, pdus: Pdu[] | null) => {
 
                         if (callback) callback(error, pdus!);
-                        resolve([error, pdus!])
+                        else error ? reject(error) : resolve(pdus!);
 
                 });
         });

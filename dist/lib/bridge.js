@@ -151,16 +151,16 @@ function descriptorToInstance(descriptor) {
 }
 //DECODE service center ( SC ) to MS ( mobile station switched on with SIM module )
 function decodePdu(pdu, callback) {
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
         bridge("smsDeliver", { "pdu": pdu }, function (error, obj) {
             if (error) {
                 if (callback)
                     callback(error, null);
-                resolve([error, null]);
+                else
+                    reject(error);
                 return;
             }
-            else
-                obj = obj;
+            ;
             var smsDescriptor = (function parseDate(obj) {
                 if (obj.date)
                     obj.date = new Date(obj.date);
@@ -175,20 +175,22 @@ function decodePdu(pdu, callback) {
             var smsInstance = descriptorToInstance(smsDescriptor);
             if (callback)
                 callback(null, smsInstance);
-            resolve([null, smsInstance]);
+            else
+                resolve(smsInstance);
         });
     });
 }
 exports.decodePdu = decodePdu;
 function buildSmsSubmitPdus(params, callback) {
-    return new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
         var args = __assign({}, params);
         if (params.validity instanceof Date)
             args.validity = params.validity.toUTCString();
         bridge("smsSubmit", args, function (error, pdus) {
             if (callback)
                 callback(error, pdus);
-            resolve([error, pdus]);
+            else
+                error ? reject(error) : resolve(pdus);
         });
     });
 }

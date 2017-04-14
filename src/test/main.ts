@@ -1,3 +1,5 @@
+require("rejection-tracker").main();
+
 import { 
         decodePdu, 
         buildSmsSubmitPdus, 
@@ -141,7 +143,7 @@ buildSmsSubmitPdus({
         "validity": new Date(),
         "request_status": true
 }, function (error_4, pdus_4) {
-
+        
         if (error_4) throw error_4;
 
 
