@@ -68,12 +68,12 @@ export declare class SmsStatusReport extends SmsWithDataHeader implements Sms {
 export declare enum Fmt {
     GSM0338 = 0,
     EIGHT_BIT = 4,
-    UCS2 = 8,
+    UCS2 = 8
 }
 export declare enum TP_MTI {
     SMS_DELIVER = 0,
     SMS_STATUS_REPORT = 2,
-    SMS_SUBMIT_REPORT = 1,
+    SMS_SUBMIT_REPORT = 1
 }
 export declare enum TP_ST {
     COMPLETED_RECEIVED = 0,
@@ -100,7 +100,7 @@ export declare enum TP_ST {
     TEMPORARY_ERROR_NO_RESPONSE_FROM_SME = 98,
     TEMPORARY_ERROR_SERVICE_REJECTED = 99,
     TEMPORARY_ERROR_QOS_UNAVAILABLE = 100,
-    TEMPORARY_ERROR_SME_ERROR = 101,
+    TEMPORARY_ERROR_SME_ERROR = 101
 }
 export declare type ST_CLASS = "COMPLETED" | "STILL TRYING" | "PERMANENT ERROR" | "TEMPORARY ERROR" | "RESERVED" | "SPECIFIC TO SC";
 export declare function decodePdu(pdu: string, callback?: (error: null | Error, sms: Sms) => void): Promise<Sms>;

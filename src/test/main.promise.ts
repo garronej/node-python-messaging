@@ -1,4 +1,4 @@
-require("rejection-tracker").main();
+process.once("unhandledRejection", error => { throw error; });
 
 import {
         decodePdu,

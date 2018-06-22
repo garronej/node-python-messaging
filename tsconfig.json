@@ -11,7 +11,7 @@
         "declaration": true,
         "outDir": "./dist",
         "strictNullChecks": true,
-        "sourceMap": true
+        "sourceMap": false
     },
     "filesGlob": [
         "./src/**/*.ts"

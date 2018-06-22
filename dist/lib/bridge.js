@@ -29,7 +29,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 exports.__esModule = true;
 var PythonShell = require("python-shell");
 var path = require("path");
-var SmsBase = (function () {
+var SmsBase = /** @class */ (function () {
     function SmsBase(type, text, pid, dcs, csca, number, date, fmt) {
         this.type = type;
         this.text = text;
@@ -45,7 +45,7 @@ var SmsBase = (function () {
     return SmsBase;
 }());
 exports.SmsBase = SmsBase;
-var SmsWithDataHeader = (function (_super) {
+var SmsWithDataHeader = /** @class */ (function (_super) {
     __extends(SmsWithDataHeader, _super);
     function SmsWithDataHeader(type, text, pid, dcs, csca, number, date, fmt, ref, cnt, seq) {
         var _this = _super.call(this, type, text, pid, dcs, csca, number, date, fmt) || this;
@@ -57,7 +57,7 @@ var SmsWithDataHeader = (function (_super) {
     return SmsWithDataHeader;
 }(SmsBase));
 exports.SmsWithDataHeader = SmsWithDataHeader;
-var SmsDeliverPart = (function (_super) {
+var SmsDeliverPart = /** @class */ (function (_super) {
     __extends(SmsDeliverPart, _super);
     function SmsDeliverPart(text, pid, dcs, csca, number, date, fmt, ref, cnt, seq) {
         return _super.call(this, TP_MTI.SMS_DELIVER, text, pid, dcs, csca, number, date, fmt, ref, cnt, seq) || this;
@@ -65,7 +65,7 @@ var SmsDeliverPart = (function (_super) {
     return SmsDeliverPart;
 }(SmsWithDataHeader));
 exports.SmsDeliverPart = SmsDeliverPart;
-var SmsDeliver = (function (_super) {
+var SmsDeliver = /** @class */ (function (_super) {
     __extends(SmsDeliver, _super);
     function SmsDeliver(text, pid, dcs, csca, number, date, fmt) {
         return _super.call(this, TP_MTI.SMS_DELIVER, text, pid, dcs, csca, number, date, fmt) || this;
@@ -73,7 +73,7 @@ var SmsDeliver = (function (_super) {
     return SmsDeliver;
 }(SmsBase));
 exports.SmsDeliver = SmsDeliver;
-var SmsStatusReport = (function (_super) {
+var SmsStatusReport = /** @class */ (function (_super) {
     __extends(SmsStatusReport, _super);
     function SmsStatusReport(text, pid, dcs, csca, number, date, fmt, ref, cnt, seq, sr) {
         var _this = _super.call(this, TP_MTI.SMS_STATUS_REPORT, text, pid, dcs, csca, number, date, fmt, ref, cnt, seq) || this;
@@ -223,4 +223,3 @@ function bridge(method, args, callback) {
         callback(null, JSON.parse(out[0]));
     });
 }
-//# sourceMappingURL=bridge.js.map

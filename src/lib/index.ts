@@ -1,5 +1,3 @@
-require("rejection-tracker")(__dirname, "..", "..");
-
 export { 
     Pdu, 
     byte, 
