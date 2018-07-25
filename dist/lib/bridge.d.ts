@@ -25,22 +25,22 @@ export interface Sms {
     seq?: number;
 }
 export declare class SmsBase {
-    readonly type: TP_MTI;
-    readonly text: string;
-    readonly pid: byte;
-    readonly dcs: byte;
-    readonly csca: string;
-    readonly number: "SR-OK" | "SR-UNKNOWN" | "SR-STORED" | string;
-    readonly date: Date;
-    readonly fmt: Fmt;
-    readonly _fmt: string;
-    readonly _type: string;
+    type: TP_MTI;
+    text: string;
+    pid: byte;
+    dcs: byte;
+    csca: string;
+    number: "SR-OK" | "SR-UNKNOWN" | "SR-STORED" | string;
+    date: Date;
+    fmt: Fmt;
+    _fmt: string;
+    _type: string;
     constructor(type: TP_MTI, text: string, pid: byte, dcs: byte, csca: string, number: "SR-OK" | "SR-UNKNOWN" | "SR-STORED" | string, date: Date, fmt: Fmt);
 }
 export declare class SmsWithDataHeader extends SmsBase implements Sms {
-    readonly ref: number;
-    readonly cnt: number;
-    readonly seq: number;
+    ref: number;
+    cnt: number;
+    seq: number;
     constructor(type: typeof SmsBase.prototype.type, text: typeof SmsBase.prototype.text, pid: typeof SmsBase.prototype.pid, dcs: typeof SmsBase.prototype.dcs, csca: typeof SmsBase.prototype.csca, number: typeof SmsBase.prototype.number, date: typeof SmsBase.prototype.date, fmt: typeof SmsBase.prototype.fmt, ref: number, cnt: number, seq: number);
 }
 export declare class SmsDeliverPart extends SmsWithDataHeader implements Sms {
@@ -50,7 +50,7 @@ export declare class SmsDeliver extends SmsBase implements Sms {
     constructor(text: typeof SmsBase.prototype.text, pid: typeof SmsBase.prototype.pid, dcs: typeof SmsBase.prototype.dcs, csca: typeof SmsBase.prototype.csca, number: typeof SmsBase.prototype.number, date: typeof SmsBase.prototype.date, fmt: typeof SmsBase.prototype.fmt);
 }
 export declare class SmsStatusReport extends SmsWithDataHeader implements Sms {
-    readonly sr: {
+    sr: {
         recipient: string;
         scts: Date;
         dt: Date;
@@ -68,7 +68,8 @@ export declare class SmsStatusReport extends SmsWithDataHeader implements Sms {
 export declare enum Fmt {
     GSM0338 = 0,
     EIGHT_BIT = 4,
-    UCS2 = 8
+    UCS2 = 8,
+    UNKNOWN = -1
 }
 export declare enum TP_MTI {
     SMS_DELIVER = 0,

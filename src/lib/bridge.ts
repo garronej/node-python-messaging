@@ -1,5 +1,6 @@
 import * as PythonShell from "python-shell";
 import * as path from "path";
+import * as nodePdu from "node-pdu";
 
 export interface Pdu {
         pdu: string;
@@ -35,21 +36,21 @@ export interface Sms {
 
 export class SmsBase {
 
-        public readonly _fmt: string;
-        public readonly _type: string;
+        public _fmt: string;
+        public _type: string;
 
         constructor(
-                public readonly type: TP_MTI,
-                public readonly text: string,
-                public readonly pid: byte,
-                public readonly dcs: byte,
-                public readonly csca: string,
-                public readonly number: "SR-OK" | "SR-UNKNOWN" | "SR-STORED" | string,
-                public readonly date: Date,
-                public readonly fmt: Fmt
+                public type: TP_MTI,
+                public text: string,
+                public pid: byte,
+                public dcs: byte,
+                public csca: string,
+                public number: "SR-OK" | "SR-UNKNOWN" | "SR-STORED" | string,
+                public date: Date,
+                public fmt: Fmt
         ) {
-                this._fmt= Fmt[this.fmt];
-                this._type= TP_MTI[this.type];
+                this._fmt = Fmt[this.fmt];
+                this._type = TP_MTI[this.type];
         }
 
 }
@@ -65,16 +66,16 @@ export class SmsWithDataHeader extends SmsBase implements Sms {
                 number: typeof SmsBase.prototype.number,
                 date: typeof SmsBase.prototype.date,
                 fmt: typeof SmsBase.prototype.fmt,
-                public readonly ref: number,
-                public readonly cnt: number,
-                public readonly seq: number
-        ){
-                super( type, text, pid, dcs, csca, number, date, fmt);
+                public ref: number,
+                public cnt: number,
+                public seq: number
+        ) {
+                super(type, text, pid, dcs, csca, number, date, fmt);
         }
 
 }
 
-export class SmsDeliverPart extends SmsWithDataHeader implements Sms{
+export class SmsDeliverPart extends SmsWithDataHeader implements Sms {
 
         constructor(
                 text: typeof SmsBase.prototype.text,
@@ -87,12 +88,12 @@ export class SmsDeliverPart extends SmsWithDataHeader implements Sms{
                 ref: typeof SmsWithDataHeader.prototype.ref,
                 cnt: typeof SmsWithDataHeader.prototype.cnt,
                 seq: typeof SmsWithDataHeader.prototype.seq
-        ){
+        ) {
                 super(TP_MTI.SMS_DELIVER, text, pid, dcs, csca, number, date, fmt, ref, cnt, seq);
         }
 }
 
-export class SmsDeliver extends SmsBase implements Sms{
+export class SmsDeliver extends SmsBase implements Sms {
 
         constructor(
                 text: typeof SmsBase.prototype.text,
@@ -102,13 +103,13 @@ export class SmsDeliver extends SmsBase implements Sms{
                 number: typeof SmsBase.prototype.number,
                 date: typeof SmsBase.prototype.date,
                 fmt: typeof SmsBase.prototype.fmt
-        ){
+        ) {
                 super(TP_MTI.SMS_DELIVER, text, pid, dcs, csca, number, date, fmt);
         }
 
 }
 
-export class SmsStatusReport extends SmsWithDataHeader implements Sms{
+export class SmsStatusReport extends SmsWithDataHeader implements Sms {
 
         public readonly _status: string;
         public readonly _stClass: ST_CLASS;
@@ -124,7 +125,7 @@ export class SmsStatusReport extends SmsWithDataHeader implements Sms{
                 ref: typeof SmsWithDataHeader.prototype.ref,
                 cnt: typeof SmsWithDataHeader.prototype.cnt,
                 seq: typeof SmsWithDataHeader.prototype.seq,
-                public readonly sr: {
+                public sr: {
                         recipient: string;
                         scts: Date;
                         dt: Date;
@@ -133,8 +134,8 @@ export class SmsStatusReport extends SmsWithDataHeader implements Sms{
         ) {
                 super(TP_MTI.SMS_STATUS_REPORT, text, pid, dcs, csca, number, date, fmt, ref, cnt, seq);
 
-                this._status= (TP_ST[this.sr.status]!==undefined)?TP_ST[this.sr.status]:"RESERVED";
-                this._stClass= stClassOf(this.sr.status);
+                this._status = (TP_ST[this.sr.status] !== undefined) ? TP_ST[this.sr.status] : "RESERVED";
+                this._stClass = stClassOf(this.sr.status);
 
         }
 }
@@ -143,7 +144,8 @@ export class SmsStatusReport extends SmsWithDataHeader implements Sms{
 export enum Fmt {
         GSM0338 = 0,
         EIGHT_BIT = 4,
-        UCS2 = 8
+        UCS2 = 8,
+        UNKNOWN = -1
 }
 
 export enum TP_MTI {
@@ -212,20 +214,20 @@ function descriptorToInstance(descriptor: Sms): SmsDeliver | SmsDeliverPart | Sm
         switch (descriptor.type) {
                 case TP_MTI.SMS_STATUS_REPORT:
                         return new SmsStatusReport(
-                                        descriptor.text,
-                                        descriptor.pid,
-                                        descriptor.dcs,
-                                        descriptor.csca,
-                                        descriptor.number,
-                                        descriptor.date,
-                                        descriptor.fmt,
-                                        descriptor.ref as any,
-                                        descriptor.cnt as any,
-                                        descriptor.seq as any,
-                                        descriptor.sr as any
+                                descriptor.text,
+                                descriptor.pid,
+                                descriptor.dcs,
+                                descriptor.csca,
+                                descriptor.number,
+                                descriptor.date,
+                                descriptor.fmt,
+                                descriptor.ref as any,
+                                descriptor.cnt as any,
+                                descriptor.seq as any,
+                                descriptor.sr as any
                         );
                 case TP_MTI.SMS_DELIVER:
-                        if ( descriptor.hasOwnProperty("ref") )
+                        if (descriptor.hasOwnProperty("ref"))
                                 return new SmsDeliverPart(
                                         descriptor.text,
                                         descriptor.pid,
@@ -256,6 +258,129 @@ function descriptorToInstance(descriptor: Sms): SmsDeliver | SmsDeliverPart | Sm
 }
 
 
+function decodePduWithNodePdu(pdu: string): SmsDeliver {
+
+        const obj = nodePdu.parse(pdu);
+
+        if (obj._type._mti !== TP_MTI.SMS_DELIVER) {
+
+                throw new Error("Fallback to node-pdu only for SMS DELIVER");
+
+        }
+
+        const getNumber = (sca: any): string => {
+
+                let number = sca._encoded;
+
+                if (typeof number !== "string" || number.length === 0) {
+
+                        throw new Error("No number");
+
+                }
+
+                if (sca._type.getValue() === 145) {
+
+                        number = `+${number}`;
+
+                }
+
+                return number;
+
+        };
+
+
+        const sms: Sms = {
+                "text": (() => {
+
+                        let text = obj._ud._data;
+
+                        if (typeof text !== "string") {
+
+                                throw new Error("node-pdu text is not a string");
+
+                        }
+
+                        return text;
+
+                })(),
+                "pid": (() => {
+
+                        try {
+
+                                let pid = obj._pid._pid;
+
+                                if (typeof pid !== "number") {
+
+                                        throw Error();
+
+                                }
+
+                                return pid;
+
+                        } catch{
+                                return 0;
+                        }
+
+
+                })(),
+                "dcs": (() => {
+
+                        try {
+
+                                let dcs = obj._dcs.getValue();
+
+                                if (typeof dcs !== "number") {
+
+                                        throw new Error();
+
+                                }
+
+                                return dcs;
+
+                        } catch{
+
+                                return 0;
+                        }
+
+
+                })(),
+                "csca": (() => {
+
+
+                        try {
+
+                                return getNumber(obj._sca);
+
+                        } catch{
+
+                                return "";
+
+                        }
+
+
+                })(),
+                "number": getNumber(obj._address),
+                "type": TP_MTI.SMS_DELIVER,
+                "date": new Date((() => {
+
+                        const timestamp = obj._scts._time;
+
+                        if (typeof timestamp !== "number" || !timestamp) {
+
+                                return Date.now();
+
+                        }
+
+                        return timestamp * 1000;
+
+                })()),
+                "fmt": Fmt.UNKNOWN
+        };
+
+        return descriptorToInstance(sms) as SmsDeliver;
+
+}
+
 
 //DECODE service center ( SC ) to MS ( mobile station switched on with SIM module )
 export function decodePdu(
@@ -265,12 +390,78 @@ export function decodePdu(
 
         return new Promise<Sms>((resolve, reject) => {
 
+                (() => {
+
+                        const resolve_src = resolve;
+
+                        resolve = _sms => {
+
+                                const sms: Sms = _sms as any;
+
+                                if (sms.type === TP_MTI.SMS_DELIVER && sms.text === "") {
+
+                                        let sms_alt: SmsDeliver | undefined;
+
+                                        try {
+
+                                                sms_alt = decodePduWithNodePdu(pdu);
+
+                                        } catch{
+
+                                                sms_alt = undefined;
+
+                                        }
+
+                                        if (!!sms_alt && !sms_alt.text.match(/�/g)) {
+
+                                                sms.text = sms_alt.text;
+
+                                        }
+
+                                }
+
+                                if (!!callback) {
+                                        callback(null, sms);
+                                }
+
+                                resolve_src(sms);
+
+                        };
+
+
+                })();
+
+                (() => {
+
+                        const reject_src = reject;
+
+                        reject = (error: Error) => {
+
+                                try {
+
+                                        resolve(decodePduWithNodePdu(pdu));
+
+                                        return;
+
+                                } catch{ }
+
+                                if (!!callback) {
+
+                                        callback(error, null as any);
+
+                                }
+
+                                reject_src(error);
+
+                        };
+
+                })();
+
                 bridge("smsDeliver", { "pdu": pdu }, (error, obj: any | null) => {
 
-                        if (error) {
+                        if (!!error) {
 
-                                if( callback ) callback(error, null as any);
-                                else reject(error);
+                                reject(error);
 
                                 return;
                         };
@@ -288,10 +479,9 @@ export function decodePdu(
 
                         })(obj);
 
-                        let smsInstance = descriptorToInstance(smsDescriptor);
+                        const smsInstance = descriptorToInstance(smsDescriptor);
 
-                        if( callback ) callback(null, smsInstance);
-                        else resolve(smsInstance);
+                        resolve(smsInstance);
 
                 });
 
@@ -301,17 +491,55 @@ export function decodePdu(
 
 export function buildSmsSubmitPdus(
         params: {
-                number: string; 
-                text: string; 
-                validity?: Date; 
-                csca?: string; 
-                klass?: number; 
+                number: string;
+                text: string;
+                validity?: Date;
+                csca?: string;
+                klass?: number;
                 request_status?: boolean;
         },
         callback?: (error: null | Error, pdus: Pdu[]) => void
 ): Promise<Pdu[]> {
 
         return new Promise<Pdu[]>((resolve, reject) => {
+
+                (() => {
+
+                        const resolve_src = resolve;
+
+                        resolve = _pdus => {
+
+                                const pdus: Pdu[] = _pdus as any;
+
+                                if (!!callback) {
+                                        callback(null, pdus);
+                                }
+
+                                resolve_src(pdus);
+
+                        };
+
+
+                })();
+
+                (() => {
+
+                        const reject_src = reject;
+
+                        reject = (error: Error) => {
+
+                                if (!!callback) {
+
+                                        callback(error, null as any);
+
+                                }
+
+                                reject_src(error);
+
+                        };
+
+                })();
+
 
                 let { text, ...args } = params as any;
 
@@ -331,8 +559,11 @@ export function buildSmsSubmitPdus(
 
                 bridge("smsSubmit", args, (error: null | Error, pdus: Pdu[] | null) => {
 
-                        if (callback) callback(error, pdus!);
-                        else error ? reject(error) : resolve(pdus!);
+                        if (!!error) {
+                                reject(error);
+                        } else {
+                                resolve(pdus!);
+                        }
 
                 });
         });
@@ -348,7 +579,6 @@ const options = {
 };
 
 function bridge(method: string, args: any, callback: (error: null | Error, out: any) => void): void {
-
 
         PythonShell.run(
                 "bridge.py",

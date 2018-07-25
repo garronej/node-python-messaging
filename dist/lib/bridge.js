@@ -26,9 +26,10 @@ var __rest = (this && this.__rest) || function (s, e) {
             t[p[i]] = s[p[i]];
     return t;
 };
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var PythonShell = require("python-shell");
 var path = require("path");
+var nodePdu = require("node-pdu");
 var SmsBase = /** @class */ (function () {
     function SmsBase(type, text, pid, dcs, csca, number, date, fmt) {
         this.type = type;
@@ -90,6 +91,7 @@ var Fmt;
     Fmt[Fmt["GSM0338"] = 0] = "GSM0338";
     Fmt[Fmt["EIGHT_BIT"] = 4] = "EIGHT_BIT";
     Fmt[Fmt["UCS2"] = 8] = "UCS2";
+    Fmt[Fmt["UNKNOWN"] = -1] = "UNKNOWN";
 })(Fmt = exports.Fmt || (exports.Fmt = {}));
 var TP_MTI;
 (function (TP_MTI) {
@@ -158,15 +160,116 @@ function descriptorToInstance(descriptor) {
             throw new Error("SUBMIT REPORT not supported");
     }
 }
+function decodePduWithNodePdu(pdu) {
+    var obj = nodePdu.parse(pdu);
+    if (obj._type._mti !== TP_MTI.SMS_DELIVER) {
+        throw new Error("Fallback to node-pdu only for SMS DELIVER");
+    }
+    var getNumber = function (sca) {
+        var number = sca._encoded;
+        if (typeof number !== "string" || number.length === 0) {
+            throw new Error("No number");
+        }
+        if (sca._type.getValue() === 145) {
+            number = "+" + number;
+        }
+        return number;
+    };
+    var sms = {
+        "text": (function () {
+            var text = obj._ud._data;
+            if (typeof text !== "string") {
+                throw new Error("node-pdu text is not a string");
+            }
+            return text;
+        })(),
+        "pid": (function () {
+            try {
+                var pid = obj._pid._pid;
+                if (typeof pid !== "number") {
+                    throw Error();
+                }
+                return pid;
+            }
+            catch (_a) {
+                return 0;
+            }
+        })(),
+        "dcs": (function () {
+            try {
+                var dcs = obj._dcs.getValue();
+                if (typeof dcs !== "number") {
+                    throw new Error();
+                }
+                return dcs;
+            }
+            catch (_a) {
+                return 0;
+            }
+        })(),
+        "csca": (function () {
+            try {
+                return getNumber(obj._sca);
+            }
+            catch (_a) {
+                return "";
+            }
+        })(),
+        "number": getNumber(obj._address),
+        "type": TP_MTI.SMS_DELIVER,
+        "date": new Date((function () {
+            var timestamp = obj._scts._time;
+            if (typeof timestamp !== "number" || !timestamp) {
+                return Date.now();
+            }
+            return timestamp * 1000;
+        })()),
+        "fmt": Fmt.UNKNOWN
+    };
+    return descriptorToInstance(sms);
+}
 //DECODE service center ( SC ) to MS ( mobile station switched on with SIM module )
 function decodePdu(pdu, callback) {
     return new Promise(function (resolve, reject) {
-        bridge("smsDeliver", { "pdu": pdu }, function (error, obj) {
-            if (error) {
-                if (callback)
+        (function () {
+            var resolve_src = resolve;
+            resolve = function (_sms) {
+                var sms = _sms;
+                if (sms.type === TP_MTI.SMS_DELIVER && sms.text === "") {
+                    var sms_alt = void 0;
+                    try {
+                        sms_alt = decodePduWithNodePdu(pdu);
+                    }
+                    catch (_a) {
+                        sms_alt = undefined;
+                    }
+                    if (!!sms_alt && !sms_alt.text.match(/�/g)) {
+                        sms.text = sms_alt.text;
+                    }
+                }
+                if (!!callback) {
+                    callback(null, sms);
+                }
+                resolve_src(sms);
+            };
+        })();
+        (function () {
+            var reject_src = reject;
+            reject = function (error) {
+                try {
+                    resolve(decodePduWithNodePdu(pdu));
+                    return;
+                }
+                catch (_a) { }
+                if (!!callback) {
                     callback(error, null);
-                else
-                    reject(error);
+                }
+                reject_src(error);
+            };
+        })();
+        bridge("smsDeliver", { "pdu": pdu }, function (error, obj) {
+            if (!!error) {
+                reject(error);
                 return;
             }
             ;
@@ -182,16 +285,32 @@ function decodePdu(pdu, callback) {
                 return obj;
             })(obj);
             var smsInstance = descriptorToInstance(smsDescriptor);
-            if (callback)
-                callback(null, smsInstance);
-            else
-                resolve(smsInstance);
+            resolve(smsInstance);
         });
     });
 }
 exports.decodePdu = decodePdu;
 function buildSmsSubmitPdus(params, callback) {
     return new Promise(function (resolve, reject) {
+        (function () {
+            var resolve_src = resolve;
+            resolve = function (_pdus) {
+                var pdus = _pdus;
+                if (!!callback) {
+                    callback(null, pdus);
+                }
+                resolve_src(pdus);
+            };
+        })();
+        (function () {
+            var reject_src = reject;
+            reject = function (error) {
+                if (!!callback) {
+                    callback(error, null);
+                }
+                reject_src(error);
+            };
+        })();
         var _a = params, text = _a.text, args = __rest(_a, ["text"]);
         args["text_as_char_code_arr"] = (function strToCodesArray(str) {
             var out = [];
@@ -202,10 +321,12 @@ function buildSmsSubmitPdus(params, callback) {
         if (params.validity instanceof Date)
             args.validity = params.validity.toUTCString();
         bridge("smsSubmit", args, function (error, pdus) {
-            if (callback)
-                callback(error, pdus);
-            else
-                error ? reject(error) : resolve(pdus);
+            if (!!error) {
+                reject(error);
+            }
+            else {
+                resolve(pdus);
+            }
         });
     });
 }

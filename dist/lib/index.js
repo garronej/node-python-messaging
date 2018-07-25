@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var bridge_1 = require("./bridge");
 exports.SmsDeliver = bridge_1.SmsDeliver;
 exports.SmsDeliverPart = bridge_1.SmsDeliverPart;

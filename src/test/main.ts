@@ -5,9 +5,7 @@ import {
         buildSmsSubmitPdus, 
         SmsDeliver,
         SmsDeliverPart,
-        SmsStatusReport,
-        TP_MTI, 
-        TP_ST 
+        SmsStatusReport
 } from "../lib/index";
 
 
@@ -126,6 +124,39 @@ decodePdu(pdu_3, (error_3, sms_3)=>{
 
 });
 
+//This is a pdu that python-messaging fail to decode.
+const pdu_4 = "07913396050066F00403E166F600C8817022607590803ACDF27C1E3E97E5E932C8FE1E87D96590515E2E37DFE234BBAC5358DFF539286C2FEB413190FB5DB797C37550BB3C9F87CF6517";
+
+const expect_4 = String.raw
+`{
+  "type": 0,
+  "text": "Messagerie vocale FreeMobile:\nVous avez 1 nouveau message.",
+  "pid": 0,
+  "dcs": 200,
+  "csca": "+33695000660",
+  "number": "666",
+  "date": "2018-07-22T06:57:09.000Z",
+  "fmt": -1,
+  "_fmt": "UNKNOWN",
+  "_type": "SMS_DELIVER"
+}`;
+
+decodePdu(pdu_4, (error, sms) => {
+
+        if (!!error) {
+                throw error;
+        }
+
+        if (!(sms instanceof SmsDeliver)) {
+                throw new Error("FAIL");
+        }
+
+        console.assert(JSON.stringify(sms, null, 2) === expect_4);
+
+        console.log("PASS_4 ( node-pdu )");
+
+});
+
 
 /*
 Optional parameters:
@@ -143,7 +174,7 @@ buildSmsSubmitPdus({
         "validity": new Date(),
         "request_status": true
 }, function (error_4, pdus_4) {
-        
+
         if (error_4) throw error_4;
 
 

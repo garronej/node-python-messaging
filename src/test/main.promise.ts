@@ -5,9 +5,7 @@ import {
         buildSmsSubmitPdus,
         SmsDeliver,
         SmsDeliverPart,
-        SmsStatusReport,
-        TP_MTI,
-        TP_ST
+        SmsStatusReport
 } from "../lib/index";
 
 let expect_1= String.raw
