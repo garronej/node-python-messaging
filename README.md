@@ -1,14 +1,34 @@
 # node-python-messaging
 
+## Motivations:
+
+There is no library available on NPM that reliably encode/decode SMS PDU.
+Bad encodings, wrong Date's timezone, PDU types not supported none  
+of the modules out there reliably fullfil it's duty.  
+On python's ecosystem ``pmarti/python-messaging`` do quite well.
+Rather than porting ``python-messaging`` to JS this node module internally
+call ``garronej/python-messaging`` and pass back the parsed results.
+
+``garronej/python-messaging`` is a fork of ``pmarti/python-messaging``  
+that fix some bugs.
+
+``node-pdu`` is also used as fallback solution in the rare cases when  
+``python-messaging`` fail to decode the PDU.
+
+## Drawbacks:
+
+All functions are async, the library is quite long to install,  
+will only work on unix systems and python and virtual env need to  
+be installed.
+
+## Features:  
+
 This module allow to:
 * Build SMS-SUBMIT pdu
 * Decode SMS-DELIVER and SMS-STATUS-REPORT pdu.
+* Strictly typed via Typescript definitions.
 
-This module is simply a JavaScript bridge to the python-messaging library.
-
-Require python ( 2.5 up to 3.2 ), pip and virtualenv
-
-The module provide two function  decodePdu and buildSmsSubmitPdus
+The module provide two function  ``decodePdu`` and ``buildSmsSubmitPdus``
 
 *decodePdu* will decode any PDU originated from service center,
 meaning a SMS-DELIVER or a SMS-STATUS-REPORT pdu. ( SMS-SUBMIT-REPORT not supported )
@@ -31,19 +51,14 @@ SMS Features
  * Relative validity
  * Alphanumeric address decoding
 
-#Install:
+## Prerequisite:
 
-First install python, pip and virtualenv on your machine then:
+In order for this module to be installed  
+python ( 2.5 up to 3.2 ), pip and virtualenv need to be present on the host.
 
-npm install garronej/node-python-messaging
+``npm install garronej/node-python-messaging``
 
 #Usage: 
-
-Raw JavaScript example: *./src/test/main.js*
-Run it with *npm run test-js* or *node ./src/test/main.js*
-
-TypeScript example: *./src/test/main.ts*
-Run it with *npm test* or *node ./out/test/main*
 
 ````javascript
 
@@ -52,9 +67,9 @@ var messaging= require("node-python-messaging");
 //Test SMS-DELIVER pdu, 
 
 //Simple SMS
-pdu= "07913306092031F0040B913336766883F500007110125050524002CF35";
+var pdu= "07913306092031F0040B913336766883F500007110125050524002CF35";
 
-messaging.decodePdu(pdu, function(error, sms){
+messaging.decodePdu(pdu).then((sms)=>{
 
         if( error ) throw error;
 
@@ -63,7 +78,7 @@ messaging.decodePdu(pdu, function(error, sms){
 });
 
 //This pdu is part 1 over 3 of a tree part concatenated SMS. => sms.seq===1 && sms.cnt===3
-var pdu= [
+pdu= [
         "07913306091093F0400B913336766883F5000061210181925140A00500031903019",
         "86F79B90D4AC3E7F53688FC66BFE5A0799A0E0AB7CB741668FC76CFCB637A995E97",
         "83C2E4343C3D4F8FD3EE33A8CC4ED359A079990C22BF41E5747DDE7E9341F4721BF",
@@ -71,7 +86,7 @@ var pdu= [
         "181466A7E3F5B0AB4A0795DDE936284C06B5D3EE741B642FBBD3E1360B14AFA7E7"
 ].join("");
 
-messaging.decodePdu(pdu, function(error, sms){
+messaging.decodePdu(pdu).then(sms => {
 
         if( error ) throw error;
 
@@ -83,7 +98,7 @@ messaging.decodePdu(pdu, function(error, sms){
 //This is a SMS-STATUS-REPORT pdu
 pdu= "07913306092021F0066E0B913336766883F5711012505040407110125050504000";
 
-messaging.decodePdu(pdu, function(error, sms){
+messaging.decodePdu(pdu).then(sms=>{
 
         if( error ) throw error;
 
@@ -107,7 +122,7 @@ messaging.buildSmsSubmitPdus({
         "text": "Mon message é là",
         "validity": new Date(),
         "request_status": true
-}, function(error, pdus){
+}).then(pdus=>{
 
         if( error ) throw error;
 

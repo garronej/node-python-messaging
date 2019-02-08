@@ -361,19 +361,24 @@ function decodePduWithNodePdu(pdu: string): SmsDeliver {
                 })(),
                 "number": getNumber(obj._address),
                 "type": TP_MTI.SMS_DELIVER,
-                "date": new Date((() => {
+                "date": (()=>{
 
                         const timestamp = obj._scts._time;
 
                         if (typeof timestamp !== "number" || !timestamp) {
 
-                                return Date.now();
+                                return new Date();
 
                         }
 
-                        return timestamp * 1000;
+                        let date = new Date(timestamp * 1000);
+                        const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+                        date = new Date(date.getTime() - userTimezoneOffset);
 
-                })()),
+                        return date;
+
+
+                })(),
                 "fmt": Fmt.UNKNOWN
         };
 
@@ -383,10 +388,7 @@ function decodePduWithNodePdu(pdu: string): SmsDeliver {
 
 
 //DECODE service center ( SC ) to MS ( mobile station switched on with SIM module )
-export function decodePdu(
-        pdu: string,
-        callback?: (error: null | Error, sms: Sms) => void
-): Promise<Sms> {
+export function decodePdu( pdu: string): Promise<Sms> {
 
         return new Promise<Sms>((resolve, reject) => {
 
@@ -420,10 +422,6 @@ export function decodePdu(
 
                                 }
 
-                                if (!!callback) {
-                                        callback(null, sms);
-                                }
-
                                 resolve_src(sms);
 
                         };
@@ -445,19 +443,13 @@ export function decodePdu(
 
                                 } catch{ }
 
-                                if (!!callback) {
-
-                                        callback(error, null as any);
-
-                                }
-
                                 reject_src(error);
 
                         };
 
                 })();
 
-                bridge("smsDeliver", { "pdu": pdu }, (error, obj: any | null) => {
+                bridge("smsDeliver", { pdu }, (error, obj: any | null) => {
 
                         if (!!error) {
 
@@ -466,13 +458,23 @@ export function decodePdu(
                                 return;
                         };
 
-                        let smsDescriptor: Sms = (function parseDate(obj: any): Sms {
+                        let smsDescriptor: Sms = (function parseDates(obj: any): Sms {
 
-                                if (obj.date) obj.date = new Date(obj.date);
+                                const parseDate = (str: string) => {
+
+                                        let date = new Date(str)
+                                        const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+                                        date = new Date(date.getTime() - userTimezoneOffset);
+
+                                        return date;
+
+                                }
+
+                                if (obj.date) obj.date = parseDate(obj.date);
 
                                 if (obj.type === 0b10) {
-                                        if (obj.sr.dt) obj.sr.dt = new Date(obj.sr.dt);
-                                        if (obj.sr.scts) obj.sr.scts = new Date(obj.sr.scts);
+                                        if (obj.sr.dt) obj.sr.dt = parseDate(obj.sr.dt);
+                                        if (obj.sr.scts) obj.sr.scts = parseDate(obj.sr.scts);
                                 }
 
                                 return obj;
@@ -571,25 +573,36 @@ export function buildSmsSubmitPdus(
 }
 
 
-const options = {
-        "mode": "text",
-        "pythonPath": path.join(__dirname, "..", "..", "dist", "virtual", "bin", "python"),
-        "pythonOptions": ['-u'],
-        "scriptPath": path.join(__dirname, "..", "..", "src", "lib")
-};
 
 function bridge(method: string, args: any, callback: (error: null | Error, out: any) => void): void {
 
         PythonShell.run(
                 "bridge.py",
-                { ...options, "args": [method, JSON.stringify(args)] },
+                {
+                        ...bridge.options,
+                        "args": [method, JSON.stringify(args)]
+                },
                 (error, out) => {
 
-                        if (error) return callback(error, null);
+                        if (!!error) {
+                                callback(error, null);
+                                return;
+                        }
 
                         callback(null, JSON.parse(out[0]));
 
                 }
         );
+
+}
+
+namespace bridge {
+
+        export const options = {
+                "mode": "text",
+                "pythonPath": path.join(__dirname, "..", "..", "dist", "virtual", "bin", "python"),
+                "pythonOptions": ['-u'],
+                "scriptPath": path.join(__dirname, "..", "..", "src", "lib")
+        };
 
 }

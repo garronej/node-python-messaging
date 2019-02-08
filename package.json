@@ -1,6 +1,6 @@
 {
   "name": "node-python-messaging",
-  "version": "1.10.0",
+  "version": "2.0.0",
   "main": "./dist/lib/index.js",
   "types": "./dist/lib/index.d.ts",
   "description": "A port of the python-messaging library for node in TypeScript",
@@ -18,7 +18,7 @@
     "build": "npm run tsc && npm run pip",
     "tsc": "./node_modules/.bin/tsc -p ./tsconfig.json",
     "pip": "/bin/sh ./install-python-dep.sh",
-    "test": "node ./dist/test/main && node ./dist/test/main.promise",
+    "test": "node ./dist/test/main",
     "test-js": "node ./src/test/main.js"
   },
   "author": "Joseph Garrone",

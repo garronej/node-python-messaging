@@ -217,19 +217,22 @@ function decodePduWithNodePdu(pdu) {
         })(),
         "number": getNumber(obj._address),
         "type": TP_MTI.SMS_DELIVER,
-        "date": new Date((function () {
+        "date": (function () {
             var timestamp = obj._scts._time;
             if (typeof timestamp !== "number" || !timestamp) {
-                return Date.now();
+                return new Date();
             }
-            return timestamp * 1000;
-        })()),
+            var date = new Date(timestamp * 1000);
+            var userTimezoneOffset = date.getTimezoneOffset() * 60000;
+            date = new Date(date.getTime() - userTimezoneOffset);
+            return date;
+        })(),
         "fmt": Fmt.UNKNOWN
     };
     return descriptorToInstance(sms);
 }
 //DECODE service center ( SC ) to MS ( mobile station switched on with SIM module )
-function decodePdu(pdu, callback) {
+function decodePdu(pdu) {
     return new Promise(function (resolve, reject) {
         (function () {
             var resolve_src = resolve;
@@ -247,9 +250,6 @@ function decodePdu(pdu, callback) {
                         sms.text = sms_alt.text;
                     }
                 }
-                if (!!callback) {
-                    callback(null, sms);
-                }
                 resolve_src(sms);
             };
         })();
@@ -261,26 +261,29 @@ function decodePdu(pdu, callback) {
                     return;
                 }
                 catch (_a) { }
-                if (!!callback) {
-                    callback(error, null);
-                }
                 reject_src(error);
             };
         })();
-        bridge("smsDeliver", { "pdu": pdu }, function (error, obj) {
+        bridge("smsDeliver", { pdu: pdu }, function (error, obj) {
             if (!!error) {
                 reject(error);
                 return;
             }
             ;
-            var smsDescriptor = (function parseDate(obj) {
+            var smsDescriptor = (function parseDates(obj) {
+                var parseDate = function (str) {
+                    var date = new Date(str);
+                    var userTimezoneOffset = date.getTimezoneOffset() * 60000;
+                    date = new Date(date.getTime() - userTimezoneOffset);
+                    return date;
+                };
                 if (obj.date)
-                    obj.date = new Date(obj.date);
+                    obj.date = parseDate(obj.date);
                 if (obj.type === 2) {
                     if (obj.sr.dt)
-                        obj.sr.dt = new Date(obj.sr.dt);
+                        obj.sr.dt = parseDate(obj.sr.dt);
                     if (obj.sr.scts)
-                        obj.sr.scts = new Date(obj.sr.scts);
+                        obj.sr.scts = parseDate(obj.sr.scts);
                 }
                 return obj;
             })(obj);
@@ -331,16 +334,20 @@ function buildSmsSubmitPdus(params, callback) {
     });
 }
 exports.buildSmsSubmitPdus = buildSmsSubmitPdus;
-var options = {
-    "mode": "text",
-    "pythonPath": path.join(__dirname, "..", "..", "dist", "virtual", "bin", "python"),
-    "pythonOptions": ['-u'],
-    "scriptPath": path.join(__dirname, "..", "..", "src", "lib")
-};
 function bridge(method, args, callback) {
-    PythonShell.run("bridge.py", __assign({}, options, { "args": [method, JSON.stringify(args)] }), function (error, out) {
-        if (error)
-            return callback(error, null);
+    PythonShell.run("bridge.py", __assign({}, bridge.options, { "args": [method, JSON.stringify(args)] }), function (error, out) {
+        if (!!error) {
+            callback(error, null);
+            return;
+        }
         callback(null, JSON.parse(out[0]));
     });
 }
+(function (bridge) {
+    bridge.options = {
+        "mode": "text",
+        "pythonPath": path.join(__dirname, "..", "..", "dist", "virtual", "bin", "python"),
+        "pythonOptions": ['-u'],
+        "scriptPath": path.join(__dirname, "..", "..", "src", "lib")
+    };
+})(bridge || (bridge = {}));
