@@ -131,7 +131,7 @@ decodePdu(pdu).then(sms=>{
 {
 
 //This is a pdu that python-messaging fail to decode.
-const pdu = "07913396050066F00403E166F600C8817022607590803ACDF27C1E3E97E5E932C8FE1E87D96590515E2E37DFE234BBAC5358DFF539286C2FEB413190FB5DB797C37550BB3C9F87CF6517";
+const pdu = "07913396050066F00403E166F600C8913030810374403ACDF27C1E3E97E5E932C8FE1E87D96590515E2E37DFE234BBAC5358DFF539286C2FEB413190FB5DB797C37550BB3C9F87CF6517";
 
 const expect = String.raw
 `{
@@ -141,18 +141,19 @@ const expect = String.raw
   "dcs": 200,
   "csca": "+33695000660",
   "number": "666",
-  "date": "2018-07-22T06:57:09.000Z",
+  "date": "2019-03-03T17:30:47.000Z",
   "fmt": -1,
   "_fmt": "UNKNOWN",
   "_type": "SMS_DELIVER"
 }`;
-
 
 decodePdu(pdu).then((sms) => {
 
         if (!(sms instanceof SmsDeliver)) {
                 throw new Error("FAIL");
         }
+
+        console.assert( Math.abs(sms.date.getTime() - 1551634251205 ) < 10 * 1000);
 
         console.assert(JSON.stringify(sms, null, 2) === expect);
 

@@ -222,10 +222,7 @@ function decodePduWithNodePdu(pdu) {
             if (typeof timestamp !== "number" || !timestamp) {
                 return new Date();
             }
-            var date = new Date(timestamp * 1000);
-            var userTimezoneOffset = date.getTimezoneOffset() * 60000;
-            date = new Date(date.getTime() - userTimezoneOffset);
-            return date;
+            return new Date(timestamp * 1000);
         })(),
         "fmt": Fmt.UNKNOWN
     };

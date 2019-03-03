@@ -371,12 +371,7 @@ function decodePduWithNodePdu(pdu: string): SmsDeliver {
 
                         }
 
-                        let date = new Date(timestamp * 1000);
-                        const userTimezoneOffset = date.getTimezoneOffset() * 60000;
-                        date = new Date(date.getTime() - userTimezoneOffset);
-
-                        return date;
-
+                        return new Date(timestamp * 1000);
 
                 })(),
                 "fmt": Fmt.UNKNOWN
