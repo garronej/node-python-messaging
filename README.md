@@ -58,7 +58,7 @@ python ( 2.5 up to 3.2 ), pip and virtualenv need to be present on the host.
 
 ``npm install garronej/node-python-messaging``
 
-#Usage: 
+# Usage: 
 
 ````javascript
 
